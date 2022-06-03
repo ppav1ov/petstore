@@ -1,7 +1,10 @@
+import json
+import time
+
 import pytest
 import requests
-import json
 from jsonschema import validate
+
 from backend.logger_funcs import log_response
 
 
@@ -19,7 +22,6 @@ def test_get_pet_findbystatus(service_url_fixt,
                               status,
                               schema_pet_fixt,
                               test_header_without_apikey_fixt):
-
     url = service_url_fixt + '/pet/findByStatus'
     param_request = {'status': status}
     response = requests.get(url,
@@ -54,8 +56,41 @@ def test_get_store_order_orderid():
 
 
 #   ------------------------------- USER --------------------------------------
-def test_get_user_login():
-    pass
+@pytest.mark.parametrize(
+    "request_params",
+    [
+        {"username": "user1",
+         "password": "pswd1"},
+        {"username": "absent_user",
+         "password": "pswd1"},
+        {"username": "user1"},
+
+    ]
+)
+@pytest.mark.current
+def test_get_user_login(service_url_fixt,
+                        prepare_test_users_fixt,
+                        test_header_without_apikey_fixt,
+                        request_params):
+    url = service_url_fixt + '/user/login'
+
+    response = requests.get(url,
+                            params=request_params,
+                            headers=test_header_without_apikey_fixt)
+    log_response(response)
+
+    if request_params.get("username") == "user1":
+        if "password" not in request_params.keys():
+            assert response.status_code != 200, response.text
+        else:
+            assert response.status_code == 200, response.text
+            assert int(response.headers.get("X-Rate-Limit")) > 0
+            expire_time = response.headers.get("X-Expires-After")
+            t = time.strptime(expire_time, "%a %b %d %H:%M:%S %Z %Y")
+            assert time.mktime(t) > time.mktime(time.gmtime())
+            assert response.headers.get("Set-Cookie") != ""
+    elif request_params.get("username") == "absent_user":
+        assert response.status_code == 400, response.text
 
 
 def test_get_user_logout():
@@ -81,9 +116,9 @@ def test_get_user_username():
 def test_get_unsupported(service_url_fixt,
                          endpoint,
                          test_header_without_apikey_fixt):
-
     url = service_url_fixt + endpoint
-    response = requests.get(url, headers=test_header_without_apikey_fixt)
+    response = requests.get(url,
+                            headers=test_header_without_apikey_fixt)
     log_response(response)
 
     j = json.loads(response.text)
