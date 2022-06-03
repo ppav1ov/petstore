@@ -1,14 +1,17 @@
-import pytest
+import os
+
 import schemathesis
 from hypothesis import settings
 from schemathesis import DataGenerationMethod
 
-path_to_yaml = "C:\\Users\\ppavlov\\Downloads\\petstore.yaml"
-service_url = "https://petstore.swagger.io/v2"
+ROOT_DIR = os.path.abspath(os.pardir)
+PATH_TO_YAML = os.path.join(ROOT_DIR, 'Task_files/petstore.yaml')
+
+SERVICE_URL = "https://petstore.swagger.io/v2"
 
 schema = schemathesis.from_path(
-    path_to_yaml,
-    base_url=service_url,
+    PATH_TO_YAML,
+    base_url=SERVICE_URL,
     data_generation_methods=[
         DataGenerationMethod.positive,
         DataGenerationMethod.negative
