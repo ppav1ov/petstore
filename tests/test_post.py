@@ -1,5 +1,4 @@
 import json
-
 import pytest
 import requests
 
@@ -60,9 +59,9 @@ def test_post_store_order():
         }
     ]
 )
-def test_post_user_authenticated(service_url_fixt,
-                                 request_body,
-                                 test_header_with_apikey_fixt):
+def test_post_user(service_url_fixt,
+                   request_body,
+                   test_header_with_apikey_fixt):
     url = service_url_fixt + "/user"
 
     response = requests.post(url,
@@ -79,12 +78,9 @@ def test_post_user_authenticated(service_url_fixt,
         assert response.json()['message'] == str(request_body['id'])
 
 
-def test_post_user_unauthenticated(service_url_fixt):
+def test_post_user_without_api_key(service_url_fixt,
+                                   test_header_with_apikey_fixt):
     url = service_url_fixt + "/user"
-    headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/json'
-    }
 
     request_body = {
         "id": 1,
@@ -96,9 +92,10 @@ def test_post_user_unauthenticated(service_url_fixt):
         "phone": "string",
         "userStatus": 0
     }
-
-    response = requests.post(       # BUG: works without API key
-        url, data=json.dumps(request_body), headers=headers)
+    # BUG: works without API key
+    response = requests.post(url,
+                             data=json.dumps(request_body),
+                             headers=test_header_with_apikey_fixt)
     log_response(response)
     assert response.status_code != 200, response.text
 

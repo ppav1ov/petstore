@@ -6,3 +6,4 @@ venv
 /tests_schemathesis/.hypothesis/
 /.hypothesis/
 */report.html
+/report.html

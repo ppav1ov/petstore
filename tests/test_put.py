@@ -42,7 +42,7 @@ def test_put_pet():
 def test_put_user_username(
         service_url_fixt,
         prepare_test_users_fixt,
-        schema_user,
+        schema_user_fixt,
         username,
         new_user_data,
         test_header_with_apikey_fixt):
@@ -58,7 +58,7 @@ def test_put_user_username(
         assert response.status_code == 200, response.text
         get_user_response = requests.get(url)
         j = get_user_response.json()
-        validate(instance=j, schema=schema_user)
+        validate(instance=j, schema=schema_user_fixt)
         assert j['firstName'] == 'changed_firstName', get_user_response.text
         assert j['lastName'] == 'changed_lastName', get_user_response.text
         assert j['email'] == 'lastName_email', get_user_response.text
