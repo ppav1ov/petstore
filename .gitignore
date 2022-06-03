@@ -1,3 +1,7 @@
 .idea/
 .pytest_cache/
+.hyphotesis/
 venv
+/tests_schemathesis/.hypothesis/
+/.hypothesis/
+/report.html
